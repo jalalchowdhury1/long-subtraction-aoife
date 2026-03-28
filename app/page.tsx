@@ -434,7 +434,7 @@ export default function AoifeMathGame() {
             {/* ── Numeric Keypad ── */}
             <div className="w-full max-w-2xl flex flex-col gap-3">
                 {gameState === "playing" && (
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-3 gap-2">
                         {/* Row 1: 1, 2, 3 */}
                         <button
                             onClick={() => handleNumberPress(1)}
@@ -453,13 +453,6 @@ export default function AoifeMathGame() {
                             className="btn-numpad py-5"
                         >
                             3
-                        </button>
-                        {/* Clear button */}
-                        <button
-                            onClick={handleClear}
-                            className="btn-numpad btn-numpad-clear py-5"
-                        >
-                            C
                         </button>
 
                         {/* Row 2: 4, 5, 6 */}
@@ -481,8 +474,6 @@ export default function AoifeMathGame() {
                         >
                             6
                         </button>
-                        {/* Empty space for alignment */}
-                        <div className="py-5"></div>
 
                         {/* Row 3: 7, 8, 9 */}
                         <button
@@ -503,10 +494,14 @@ export default function AoifeMathGame() {
                         >
                             9
                         </button>
-                        {/* Empty space for alignment */}
-                        <div className="py-5"></div>
 
-                        {/* Row 4: 0, Submit */}
+                        {/* Row 4: C, 0, Submit */}
+                        <button
+                            onClick={handleClear}
+                            className="btn-numpad btn-numpad-clear py-5"
+                        >
+                            C
+                        </button>
                         <button
                             onClick={() => handleNumberPress(0)}
                             className="btn-numpad py-5"
