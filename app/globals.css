@@ -1,0 +1,153 @@
+@import url('https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Inter:wght@400;700&display=swap');
+@import "tailwindcss";
+
+:root {
+    --background: #ffffff;
+    --foreground: #171717;
+    /* Vibrant pinks and purples theme */
+    --pink-50: #fff1f2;
+    --pink-100: #ffe4e6;
+    --pink-200: #fecdd3;
+    --pink-300: #fda4af;
+    --pink-400: #fb7185;
+    --pink-500: #f43f5e;
+    --pink-600: #e11d48;
+    --pink-700: #be123c;
+    --purple-50: #faf5ff;
+    --purple-100: #f3e8ff;
+    --purple-200: #e9d5ff;
+    --purple-300: #d8b4fe;
+    --purple-400: #c084fc;
+    --purple-500: #a855f7;
+    --purple-600: #9333ea;
+    --purple-700: #7e22ce;
+    --blue-50: #eff6ff;
+    --blue-100: #dbeafe;
+    --blue-400: #60a5fa;
+    --blue-500: #3b82f6;
+}
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-pink-50: var(--pink-50);
+    --color-pink-100: var(--pink-100);
+    --color-pink-200: var(--pink-200);
+    --color-pink-300: var(--pink-300);
+    --color-pink-400: var(--pink-400);
+    --color-pink-500: var(--pink-500);
+    --color-pink-600: var(--pink-600);
+    --color-pink-700: var(--pink-700);
+    --color-purple-50: var(--purple-50);
+    --color-purple-100: var(--purple-100);
+    --color-purple-200: var(--purple-200);
+    --color-purple-300: var(--purple-300);
+    --color-purple-400: var(--purple-400);
+    --color-purple-500: var(--purple-500);
+    --color-purple-600: var(--purple-600);
+    --color-purple-700: var(--purple-700);
+    --font-sans: 'Inter', var(--font-geist-sans);
+    --font-bubble: 'Bubblegum Sans', cursive;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: #0f172a;
+        --foreground: #f1f5f9;
+    }
+}
+
+body {
+    background: radial-gradient(circle at top left, var(--pink-50), transparent),
+        radial-gradient(circle at bottom right, var(--purple-50), transparent),
+        #ffffff;
+    color: var(--foreground);
+    font-family: 'Bubblegum Sans', cursive;
+    min-height: 100vh;
+}
+
+/* Kid-friendly numpad button styles */
+.btn-numpad {
+    @apply bg-white border-4 border-pink-300 rounded-2xl text-3xl font-bold text-pink-600 transition-all duration-200 hover:bg-pink-100 hover:border-pink-400 active:scale-95 shadow-lg hover:shadow-xl;
+}
+
+.btn-numpad-clear {
+    @apply bg-purple-200 border-4 border-purple-400 text-purple-700;
+}
+
+.btn-numpad-submit {
+    @apply bg-pink-500 border-4 border-pink-600 text-white col-span-2;
+}
+
+.btn-numpad-submit:hover {
+    @apply bg-pink-600 border-pink-700;
+}
+
+/* Fun animations */
+@keyframes bounce-in {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    70% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes celebrate {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    25% {
+        transform: translateY(-20px);
+    }
+
+    50% {
+        transform: translateY(0);
+    }
+
+    75% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-10px);
+    }
+
+    75% {
+        transform: translateX(10px);
+    }
+}
+
+.animate-bounce-in {
+    animation: bounce-in 0.5s ease-out;
+}
+
+.animate-celebrate {
+    animation: celebrate 0.6s ease-in-out;
+}
+
+.animate-shake {
+    animation: shake 0.4s ease-in-out;
+}
