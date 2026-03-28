@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 // Declare global confetti
 declare global {
@@ -31,7 +31,6 @@ interface ProgressData {
     lastPlayed: number;
     masteredPatterns: string[];
     strugglingPatterns: string[];
-    bestTime: number | null;
 }
 
 type GameState = "loading" | "playing" | "success" | "try-again" | "show-answer" | "ended";
@@ -59,7 +58,6 @@ const getDefaultProgress = (): ProgressData => ({
     lastPlayed: Date.now(),
     masteredPatterns: [],
     strugglingPatterns: [],
-    bestTime: null,
 });
 
 export default function AoifeMathGame() {
@@ -74,12 +72,6 @@ export default function AoifeMathGame() {
     const [attempt, setAttempt] = useState(1);
     const [showAnswer, setShowAnswer] = useState(false);
     const [progress, setProgress] = useState<ProgressData>(getDefaultProgress());
-
-    // Timer state
-    const [timerStarted, setTimerStarted] = useState(false);
-    const [elapsedTime, setElapsedTime] = useState<number>(0);
-    const timerRef = useRef<number | null>(null);
-    const startTimeRef = useRef<number | null>(null);
 
     const loadProgress = useCallback((): ProgressData => {
         try {
@@ -108,28 +100,6 @@ export default function AoifeMathGame() {
             console.error("Error saving progress:", e);
         }
     };
-
-    const startTimer = useCallback(() => {
-        if (!timerStarted) {
-            setTimerStarted(true);
-            startTimeRef.current = Date.now();
-            timerRef.current = window.setInterval(() => {
-                if (startTimeRef.current) {
-                    setElapsedTime(Date.now() - startTimeRef.current);
-                }
-            }, 10);
-        }
-    }, [timerStarted]);
-
-    const stopTimer = useCallback(() => {
-        if (timerRef.current) {
-            clearInterval(timerRef.current);
-            timerRef.current = null;
-        }
-        if (startTimeRef.current) {
-            setElapsedTime(Date.now() - startTimeRef.current);
-        }
-    }, []);
 
     const initializeGame = useCallback(() => {
         const loadedProgress = loadProgress();
@@ -163,13 +133,6 @@ export default function AoifeMathGame() {
         setMessageType("none");
         setAttempt(1);
         setShowAnswer(false);
-        setTimerStarted(false);
-        setElapsedTime(0);
-        startTimeRef.current = null;
-        if (timerRef.current) {
-            clearInterval(timerRef.current);
-            timerRef.current = null;
-        }
     }, [loadProgress]);
 
     useEffect(() => {
@@ -197,12 +160,6 @@ export default function AoifeMathGame() {
         if (displayValue === "") return;
 
         const answer = parseInt(displayValue, 10);
-
-        // Start timer on first answer
-        if (!timerStarted) {
-            startTimer();
-        }
-
         setUserAnswer(answer);
 
         const correct = answer === currentQuestion?.answer;
@@ -221,11 +178,6 @@ export default function AoifeMathGame() {
             setMessageType("correct");
             setGameState("success");
 
-            // If this is the last question, stop timer
-            if (currentQuestionIndex === 19) {
-                stopTimer();
-            }
-
             setTimeout(() => {
                 if (currentQuestionIndex < 19) {
                     setCurrentQuestionIndex((prev) => prev + 1);
@@ -236,14 +188,10 @@ export default function AoifeMathGame() {
                     setMessageType("none");
                     setAttempt(1);
                 } else {
-                    // Save progress with score and best time
+                    // Save progress with score
                     const newProgress = { ...progress };
-                    newProgress.totalCorrect += score + 1; // +1 for this correct answer
+                    newProgress.totalCorrect += score + 1;
                     newProgress.lastPlayed = Date.now();
-                    // Update best time if this is faster or no best time exists
-                    if (newProgress.bestTime === null || elapsedTime < newProgress.bestTime) {
-                        newProgress.bestTime = elapsedTime;
-                    }
                     setProgress(newProgress);
                     saveProgress(newProgress);
                     setGameState("ended");
@@ -266,11 +214,6 @@ export default function AoifeMathGame() {
                 setMessageType("show-answer");
                 setGameState("show-answer");
                 setShowAnswer(true);
-
-                // If this is the last question, stop timer
-                if (currentQuestionIndex === 19) {
-                    stopTimer();
-                }
 
                 setTimeout(() => {
                     if (currentQuestionIndex < 19) {
@@ -298,12 +241,6 @@ export default function AoifeMathGame() {
 
     const handlePlayAgain = () => {
         initializeGame();
-    };
-
-    // Format time as X.Xs
-    const formatTime = (ms: number): string => {
-        const seconds = ms / 1000;
-        return seconds.toFixed(1) + "s";
     };
 
     if (gameState === "loading") {
@@ -334,16 +271,6 @@ export default function AoifeMathGame() {
                             {score}<span className="text-3xl text-purple-400"> / 20</span>
                         </p>
                     </div>
-                    <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-4 mb-4 border-2 border-blue-100">
-                        <p className="text-sm font-bold text-blue-400 uppercase tracking-widest mb-1">Current Time</p>
-                        <p className="text-4xl font-black text-blue-600">{formatTime(elapsedTime)}</p>
-                    </div>
-                    {progress.bestTime && (
-                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-3 mb-6 border-2 border-green-100">
-                            <p className="text-sm font-bold text-green-400 uppercase tracking-widest mb-1">Best Time Ever</p>
-                            <p className="text-2xl font-black text-green-600">{formatTime(progress.bestTime)}</p>
-                        </div>
-                    )}
                     <div className="flex justify-center gap-6 text-sm font-bold mb-8">
                         <span className="text-green-500">✓ {progress.totalCorrect} correct</span>
                         <span className="text-pink-400">✗ {progress.totalIncorrect} wrong</span>
@@ -366,7 +293,7 @@ export default function AoifeMathGame() {
             <div className="fixed bottom-0 right-0 w-80 h-80 bg-purple-300 rounded-full blur-3xl opacity-20 translate-x-1/3 translate-y-1/3 pointer-events-none" />
             <div className="fixed top-1/2 right-0 w-48 h-48 bg-blue-200 rounded-full blur-3xl opacity-20 pointer-events-none" />
 
-            {/* ── Progress bar with timer ── */}
+            {/* ── Progress bar ── */}
             <div className="w-full max-w-2xl flex items-center gap-4">
                 <span className="text-pink-500 font-black text-lg tabular-nums whitespace-nowrap">
                     {currentQuestionIndex + 1}<span className="text-pink-300"> / 20</span>
@@ -378,16 +305,6 @@ export default function AoifeMathGame() {
                     />
                 </div>
                 <span className="text-purple-500 font-black text-lg tabular-nums whitespace-nowrap">{score} ⭐</span>
-                {/* Stopwatch display */}
-                <div className={`flex items-center gap-2 px-4 py-1 rounded-full ${timerStarted ? 'bg-blue-100 border-2 border-blue-300' : 'bg-gray-100 border-2 border-gray-200'}`}>
-                    <svg className="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <circle cx="12" cy="12" r="10" strokeWidth="2" />
-                        <path strokeLinecap="round" strokeWidth="2" d="M12 6v6l4 2" />
-                    </svg>
-                    <span className={`text-lg font-black tabular-nums ${timerStarted ? 'text-blue-600' : 'text-gray-400'}`}>
-                        {timerStarted ? formatTime(elapsedTime) : "0.0s"}
-                    </span>
-                </div>
             </div>
 
             {/* ── Equation card ── */}
